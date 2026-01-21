@@ -1,11 +1,7 @@
-name: Build APK
+name: Build APK (Alternative)
 
 on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-  workflow_dispatch: # Allows manual trigger
+  workflow_dispatch: # Manual trigger only
 
 jobs:
   build:
@@ -22,9 +18,22 @@ jobs:
         distribution: 'temurin'
         
     - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-      with:
-        api-level: 35
+      run: |
+        mkdir -p $ANDROID_HOME/cmdline-tools
+        cd $ANDROID_HOME/cmdline-tools
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+        unzip -q commandlinetools-linux-11076708_latest.zip
+        mv cmdline-tools latest
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+      env:
+        ANDROID_HOME: /usr/local/lib/android/sdk
+        
+    - name: Setup Android environment
+      run: |
+        echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+        echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
+        echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
         
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew
@@ -41,11 +50,13 @@ jobs:
       
     - name: Build Debug APK
       run: ./gradlew assembleDebug --stacktrace --no-daemon
+      env:
+        ANDROID_HOME: /usr/local/lib/android/sdk
         
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       if: success()
       with:
-        name: app-debug-apk
+        name: app-debug-apk-v2
         path: app/build/outputs/apk/debug/app-debug.apk
         retention-days: 30
