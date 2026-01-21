@@ -1,0 +1,14 @@
+# Android SDK Location
+# Uncomment and update the path according to your Android SDK installation
+# Windows default location:
+sdk.dir=C\:\\Users\\YOUR_USERNAME\\AppData\\Local\\Android\\Sdk
+
+# Or if you have ANDROID_HOME environment variable set:
+# sdk.dir=${ANDROID_HOME}
+
+# To find your SDK location:
+# 1. Open Android Studio
+# 2. File → Settings → Appearance & Behavior → System Settings → Android SDK
+# 3. Copy the "Android SDK Location" path
+# 4. Replace YOUR_USERNAME with your Windows username
+# 5. Replace backslashes with double backslashes (\\)
